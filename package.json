@@ -1,0 +1,16 @@
+{
+  "name": "orbit-db-access-controller-store",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/AccessControllerStore.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "lodash.without": "^4.4.0",
+    "orbit-db-store": "github:orbitdb/orbit-db-store#feat/new-acs"
+  },
+  "devDependencies": {}
+}
