@@ -65,9 +65,16 @@ class AccessControllerStore extends Store {
     return access//.reduce((res, val) => res.add(val), new Set([])))
   }
 
-  async canAppend(entry, identityProvider) {
-    const wherePublicKeysAreEqual = e => e.publicKey === entry.identity.publicKey
+  async hasAccessForEntry(access, entry) {
+    const whereAccessLevelsAreEqual = e => Array.isArray(access) 
+      ? access.includes(a => e.access === a)
+      : e.access === access
+
+    const wherePublicKeysAreEqual = e => e.publicKey === entry.identity.publicKey &&
+      whereAccessLevelsAreEqual(e)
+
     const granted = Array.from(this._index.granted.values()).map(e => e.payload.value).find(wherePublicKeysAreEqual)
+
     const revoked = Array.from(this._index.revoked.values()).map(e => e.payload.value).find(wherePublicKeysAreEqual)
     // If access has been granted 
     // AND the entry after which the access was granted is 
@@ -83,8 +90,9 @@ class AccessControllerStore extends Store {
     // console.log("both", (granted !== undefined && granted.after.clock.time < entry.clock.time) &&
     //   (revoked !== undefined ? revoked.after.clock.time > entry.clock.time : false) === false)
 
-    return (granted !== undefined && granted.after.clock.time < entry.clock.time) &&
-      (revoked !== undefined ? revoked.after.clock.time < entry.clock.time : false) === false
+    return ((granted !== undefined && granted.after.clock.time < entry.clock.time) &&
+      (revoked !== undefined ? revoked.after.clock.time < entry.clock.time : false) === false) ||
+      this.access.canAppend(entry, this.identity.provider)
   }
 
   async grant (access, identity, afterEntry) {
@@ -98,7 +106,7 @@ class AccessControllerStore extends Store {
         access: access,
         after: afterEntry
       },
-    })    
+    })
   }
 
   async revoke (access, identity, afterEntry) {
@@ -112,7 +120,7 @@ class AccessControllerStore extends Store {
         access: access,
         after: afterEntry
       },
-    })    
+    })
   }
 }
 
