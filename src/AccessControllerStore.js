@@ -76,13 +76,6 @@ class AccessControllerStore extends Store {
     const granted = Array.from(this._index.granted.values()).map(e => e.payload.value).find(wherePublicKeysAreEqual)
 
     const revoked = Array.from(this._index.revoked.values()).map(e => e.payload.value).find(wherePublicKeysAreEqual)
-    // If access has been granted 
-    // AND the entry after which the access was granted is 
-    // BEFORE than the entry being added 
-    // AND
-    // access was not revoked 
-    // OR if it was, the revocation happened
-    // AFTER the entry being added happened
     // console.log("granted", granted, (granted !== undefined && granted.after.clock.time < entry.clock.time))
     // console.log("revoked", revoked, (revoked !== undefined ? revoked.after.clock.time >= entry.clock.time : false) === false)
     // if (revoked)
@@ -90,6 +83,14 @@ class AccessControllerStore extends Store {
     // console.log("both", (granted !== undefined && granted.after.clock.time < entry.clock.time) &&
     //   (revoked !== undefined ? revoked.after.clock.time > entry.clock.time : false) === false)
 
+    // If access has been granted 
+    // AND the entry after which the access was granted is 
+    // BEFORE than the entry being added 
+    // AND
+    // access was not revoked 
+    // OR if it was, the revocation happened
+    // AFTER the entry being added happened
+    // OR if the root access controller allows write access
     return ((granted !== undefined && granted.after.clock.time < entry.clock.time) &&
       (revoked !== undefined ? revoked.after.clock.time < entry.clock.time : false) === false) ||
       this.access.canAppend(entry, this.identity.provider)
